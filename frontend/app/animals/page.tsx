@@ -88,7 +88,7 @@ function AnimalsContent() {
         ) : animals.length === 0 ? (
           <div className="card text-center">
             <p style={{ color: "var(--muted)" }}>
-              Aucun animal pour l'instant. Ajoutez-en un pour commencer.
+              Aucun animal pour l&apos;instant. Ajoutez-en un pour commencer.
             </p>
           </div>
         ) : (

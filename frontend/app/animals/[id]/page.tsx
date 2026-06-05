@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/lib/auth-context";
 import { getAnimal, deleteAnimal } from "@/lib/animals";
 import { Animal, Species } from "@/lib/types";
+import HealthRecordsSection from "@/components/HealthRecordsSection";
+import WeightsSection from "@/components/WeightsSection";
+import RemindersSection, { RemindersSectionHandle } from "@/components/RemindersSection";
 
 const SPECIES_LABELS: Record<Species, string> = {
   dog: "Chien",
@@ -23,6 +26,7 @@ function AnimalDetailContent() {
 
   const [animal, setAnimal] = useState<Animal | null>(null);
   const [loading, setLoading] = useState(true);
+  const remindersRef = useRef<RemindersSectionHandle>(null);
 
   useEffect(() => {
     if (!householdId) return;
@@ -40,12 +44,8 @@ function AnimalDetailContent() {
   return (
     <div>
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6">
-        <button
-          onClick={() => router.push("/animals")}
-          className="text-sm mb-4"
-          style={{ color: "var(--sage-dark)" }}
-        >
+      <main className="max-w-4xl mx-auto px-6 pb-12">
+        <button onClick={() => router.push("/animals")} className="text-sm mb-4" style={{ color: "var(--sage-dark)" }}>
           ← Retour
         </button>
 
@@ -68,11 +68,17 @@ function AnimalDetailContent() {
               </button>
             </div>
 
-            <div className="card">
-              <p style={{ color: "var(--muted)" }}>
-                Les soins, pesées et rappels apparaîtront ici (J8).
-              </p>
-            </div>
+            {householdId && (
+              <>
+                <RemindersSection ref={remindersRef} householdId={householdId} animalId={animalId} />
+                <HealthRecordsSection
+                  householdId={householdId}
+                  animalId={animalId}
+                  onChange={() => remindersRef.current?.reload()}
+                />
+                <WeightsSection householdId={householdId} animalId={animalId} />
+              </>
+            )}
           </div>
         )}
       </main>
