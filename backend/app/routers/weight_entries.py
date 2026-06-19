@@ -8,6 +8,7 @@ from app.core.deps import require_role
 from app.models.enums import Role
 from app.schemas.weight_entry import WeightEntryCreate, WeightEntryOut
 from app.services import weight_service, animal_service
+from app.core.ws_manager import manager
 
 router = APIRouter(
     prefix="/households/{household_id}/animals/{animal_id}/weights",
@@ -30,12 +31,22 @@ def list_weights(
 
 
 @router.post("", response_model=WeightEntryOut, status_code=status.HTTP_201_CREATED)
-def create_weight(
+async def create_weight(
     household_id: uuid.UUID,
     animal_id: uuid.UUID,
     data: WeightEntryCreate,
     db: Session = Depends(get_db),
     _m=Depends(require_role(*CAN_WRITE)),
 ):
-    animal_service.get_animal_or_404(db, household_id, animal_id)
-    return weight_service.create_weight(db, animal_id, data)
+    animal = animal_service.get_animal_or_404(db, household_id, animal_id)
+    entry = weight_service.create_weight(db, animal_id, data)
+    await manager.publish(
+        str(household_id),
+        {
+            "type": "weight_created",
+            "animal_id": str(animal_id),
+            "animal_name": animal.name,
+            "weight_kg": entry.weight_kg,
+        },
+    )
+    return entry

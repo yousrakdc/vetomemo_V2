@@ -8,6 +8,7 @@ from app.core.deps import require_role
 from app.models.enums import Role
 from app.schemas.health_record import HealthRecordCreate, HealthRecordUpdate, HealthRecordOut
 from app.services import health_record_service, animal_service
+from app.core.ws_manager import manager
 
 router = APIRouter(
     prefix="/households/{household_id}/animals/{animal_id}/health-records",
@@ -30,7 +31,7 @@ def list_records(
 
 
 @router.post("", response_model=HealthRecordOut, status_code=status.HTTP_201_CREATED)
-def create_record(
+async def create_record(
     household_id: uuid.UUID,
     animal_id: uuid.UUID,
     data: HealthRecordCreate,
@@ -38,7 +39,17 @@ def create_record(
     _m=Depends(require_role(*CAN_WRITE)),
 ):
     animal = animal_service.get_animal_or_404(db, household_id, animal_id)
-    return health_record_service.create_health_record(db, animal, data)
+    record = health_record_service.create_health_record(db, animal, data)
+    await manager.publish(
+        str(household_id),
+        {
+            "type": "health_record_created",
+            "animal_id": str(animal_id),
+            "animal_name": animal.name,
+            "title": record.title,
+        },
+    )
+    return record
 
 
 @router.patch("/{record_id}", response_model=HealthRecordOut)

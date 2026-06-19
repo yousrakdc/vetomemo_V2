@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/lib/auth-context";
 import { listAnimals, createAnimal } from "@/lib/animals";
 import { Animal, Species } from "@/lib/types";
+import { useHouseholdSocket, HouseholdEvent } from "@/lib/useHouseholdSocket";
 
 const SPECIES_LABELS: Record<Species, string> = {
   dog: "Chien",
@@ -21,6 +22,7 @@ function AnimalsContent() {
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   // champs du formulaire
   const [name, setName] = useState("");
@@ -44,6 +46,17 @@ function AnimalsContent() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [householdId]);
+
+  // Notifications temps réel via WebSocket
+  useHouseholdSocket(householdId, (event: HouseholdEvent) => {
+    if (event.type === "health_record_created") {
+      setNotification(`Nouveau soin ajouté pour ${event.animal_name} : ${event.title}`);
+    } else if (event.type === "weight_created") {
+      setNotification(`Nouvelle pesée pour ${event.animal_name} : ${event.weight_kg} kg`);
+    }
+    load(); // rafraîchit la liste
+    setTimeout(() => setNotification(null), 5000);
+  });
 
   async function handleCreate() {
     setError("");
@@ -76,6 +89,15 @@ function AnimalsContent() {
     <div>
       <Navbar />
       <main className="max-w-4xl mx-auto px-6">
+        {notification && (
+          <div
+            className="mb-4 p-3 rounded-lg text-sm animate-in"
+            style={{ background: "var(--sage-tint)", color: "var(--sage-dark)" }}
+          >
+            🔔 {notification}
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl">Mes animaux</h1>
           <button className="btn-primary" onClick={() => setShowModal(true)}>
