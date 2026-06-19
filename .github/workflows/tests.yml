@@ -27,10 +27,6 @@ jobs:
 
       - name: Lancer les tests
         working-directory: ./backend
-        run: pytest -v
-
-      - name: Lancer les tests
-        working-directory: ./backend
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
