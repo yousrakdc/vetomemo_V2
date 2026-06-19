@@ -21,8 +21,9 @@ const SPECIES_LABELS: Record<Species, string> = {
 function AnimalDetailContent() {
   const params = useParams();
   const router = useRouter();
-  const { households } = useAuth();
-  const householdId = households[0]?.household.id;
+  const { activeHousehold } = useAuth();
+  const householdId = activeHousehold?.household.id;
+  const myRole = activeHousehold?.role;
   const animalId = params.id as string;
 
   const [animal, setAnimal] = useState<Animal | null>(null);

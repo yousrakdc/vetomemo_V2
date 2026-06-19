@@ -16,8 +16,8 @@ const SPECIES_LABELS: Record<Species, string> = {
 };
 
 function AnimalsContent() {
-  const { households } = useAuth();
-  const householdId = households[0]?.household.id;
+  const { activeHousehold } = useAuth();
+  const householdId = activeHousehold?.household.id;
 
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loading, setLoading] = useState(true);

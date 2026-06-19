@@ -8,6 +8,8 @@ import { HouseholdMembership } from "./types";
 interface AuthState {
   isAuthenticated: boolean;
   households: HouseholdMembership[];
+  activeHousehold: HouseholdMembership | null;
+  setActiveHouseholdId: (id: string) => void;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [households, setHouseholds] = useState<HouseholdMembership[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -26,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const data = await api.get<HouseholdMembership[]>("/households/mine");
       setHouseholds(data);
+      // Si aucun foyer actif encore choisi, on prend le premier par défaut
+      setActiveId((prev) => prev ?? data[0]?.household.id ?? null);
     } catch {
       setHouseholds([]);
     }
@@ -53,12 +58,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearToken();
     setIsAuthenticated(false);
     setHouseholds([]);
+    setActiveId(null);
     router.push("/login");
   }
 
+  const activeHousehold =
+    households.find((h) => h.household.id === activeId) ?? households[0] ?? null;
+
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, households, loading, signIn, signOut, refreshHouseholds }}
+      value={{
+        isAuthenticated,
+        households,
+        activeHousehold,
+        setActiveHouseholdId: setActiveId,
+        loading,
+        signIn,
+        signOut,
+        refreshHouseholds,
+      }}
     >
       {children}
     </AuthContext.Provider>
