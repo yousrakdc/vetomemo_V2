@@ -28,3 +28,16 @@ jobs:
       - name: Lancer les tests
         working-directory: ./backend
         run: pytest -v
+
+      - name: Lancer les tests
+        working-directory: ./backend
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
+          JWT_SECRET: test-secret-for-ci
+        run: pytest -v
