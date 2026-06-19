@@ -16,6 +16,20 @@ export interface WeightAnalysis {
   };
 }
 
+export interface AnimalProfile {
+  available: boolean;
+  profile_key: string | null;
+  profile_label: string | null;
+  suggested_care: string[];
+  reason: string | null;
+}
+
+export function getAnimalProfile(householdId: string, animalId: string) {
+  return api.get<AnimalProfile>(
+    `/households/${householdId}/animals/${animalId}/analysis/profile`
+  );
+}
+
 export function analyzeWeight(householdId: string, animalId: string) {
   return api.get<WeightAnalysis>(
     `/households/${householdId}/animals/${animalId}/analysis/weight`

@@ -10,6 +10,7 @@ import { Animal, Species } from "@/lib/types";
 import HealthRecordsSection from "@/components/HealthRecordsSection";
 import WeightsSection from "@/components/WeightsSection";
 import RemindersSection, { RemindersSectionHandle } from "@/components/RemindersSection";
+import ProfileSection from "@/components/ProfileSection";
 
 const SPECIES_LABELS: Record<Species, string> = {
   dog: "Chien",
@@ -71,6 +72,7 @@ function AnimalDetailContent() {
             {householdId && (
               <>
                 <RemindersSection ref={remindersRef} householdId={householdId} animalId={animalId} />
+                <ProfileSection householdId={householdId} animalId={animalId} />
                 <HealthRecordsSection
                   householdId={householdId}
                   animalId={animalId}
