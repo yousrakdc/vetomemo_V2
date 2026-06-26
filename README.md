@@ -29,7 +29,7 @@ VetoMemo permet de tenir un carnet de santé numérique pour ses animaux (visite
 ### 1. Recuperer le depot
 
 ```bash
-git clone [A COMPLETER : URL du depot]
+git clone https://github.com/yousrakdc/vetomemo_V2.git
 cd vetomemo_V2
 ```
 
@@ -47,7 +47,7 @@ POSTGRES_PORT=5432
 REDIS_HOST=redis
 REDIS_PORT=6379
 
-JWT_SECRET=[A COMPLETER : une chaine secrete longue et aleatoire]
+JWT_SECRET=Xxxxxxx
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
